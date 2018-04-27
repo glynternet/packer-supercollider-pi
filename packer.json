@@ -4,26 +4,32 @@
     "wifi_password": "",
     "home": "{{env `HOME`}}"
   },
-  "builders": [{
-    "type": "arm-image",
-    "iso_url" : "/home/glynhanmer/Downloads/2018-04-18-raspbian-stretch-lite.zip",
-    "iso_checksum_type":"sha256",
-    "iso_checksum":"5a0747b2bfb8c8664192831b7dc5b22847718a1cb77639a1f3db3683b242dc96"
-  }],  
+  "builders": [
+    {
+      "type": "arm-image",
+      "iso_url": "/home/glynhanmer/Downloads/2018-04-18-raspbian-stretch-lite.zip",
+      "iso_checksum_type": "sha256",
+      "iso_checksum": "5a0747b2bfb8c8664192831b7dc5b22847718a1cb77639a1f3db3683b242dc96"
+    }
+  ],
   "provisioners": [
     {
       "type": "shell",
-      "inline": ["touch /boot/ssh"]
+      "inline": [
+        "touch /boot/ssh"
+      ]
     },
     {
       "type": "shell",
       "inline": [
         "wpa_passphrase \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\" | sed -e 's/#.*$//' -e '/^$/d' >> /etc/wpa_supplicant/wpa_supplicant.conf"
-        ]
+      ]
     },
     {
       "type": "shell",
-      "inline" : ["mkdir -p /home/pi/.ssh"]
+      "inline": [
+        "mkdir -vp /home/pi/.ssh"
+      ]
     },
     {
       "type": "file",
@@ -36,6 +42,51 @@
         "sed '/PasswordAuthentication/d' -i /etc/ssh/ssh_config",
         "echo  >> /etc/ssh/ssh_config",
         "echo 'PasswordAuthentication no' >> /etc/ssh/ssh_config"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "jack2",
+      "destination": "/tmp/jack2"
+    },
+    {
+      "type": "file",
+      "source": "supercollider",
+      "destination": "/tmp/supercollider"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo apt-get update",
+        "sudo apt-get -y upgrade",
+        "sudo apt-get -y dist-upgrade",
+        "sudo apt-get install -y libsamplerate0-dev libsndfile1-dev libasound2-dev libavahi-client-dev libreadline6-dev libfftw3-dev libxt-dev libudev-dev libcwiid-dev cmake git"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "cd /tmp/jack2",
+        "./waf configure --alsa --libdir=/usr/lib/arm-linux-gnueabihf/",
+        "./waf build",
+        "sudo ./waf install",
+        "sudo ldconfig",
+        "rm -rf jack2",
+        "echo \"@audio - memlock 256000\n@audio - rtprio 75\n\" | sudo tee -a /etc/security/limits.conf",
+        "echo \"/usr/local/bin/jackd -P75 -dalsa -dhw:0 -r44100 -p1024 -n3\" > /home/pi/.jackdrc"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "cd /tmp/supercollider",
+        "mkdir -v build",
+        "cd build",
+        "cmake -L -DCMAKE_BUILD_TYPE=\"Release\" -DBUILD_TESTING=OFF -DSUPERNOVA=OFF -DNATIVE=ON -DSC_WII=ON -DSC_IDE=OFF -DSC_QT=OFF -DSC_ED=OFF -DSC_EL=OFF -DSC_VIM=ON ..",
+        "make -j 4",
+        "sudo make install",
+        "sudo ldconfig",
+        "mkdir -vp /home/pi/.config/SuperCollider"
       ]
     }
   ]

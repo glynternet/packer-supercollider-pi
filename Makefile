@@ -1,14 +1,3 @@
-IMAGE_NAME ?= supercollider-pi-builder
-TAG ?= unversioned
-IMAGE ?= $(IMAGE_NAME):$(TAG)
-
-image-builder:
-	docker build -t $(IMAGE) .
-
-build:
-	# docker run -it -v $(PWD):/$(IMAGE_NAME) --entrypoint pwd $(IMAGE)
-	docker run -it -v $(PWD):/$(IMAGE_NAME) $(IMAGE) build /$(IMAGE_NAME)/packer.json
-
 dependencies:
 	sudo apt install kpartx qemu-user-static
 
@@ -16,4 +5,18 @@ download-arm-builder:
 	go get github.com/solo-io/packer-builder-arm-image
 
 build-arm-builer:
-	GOOS=linux go build github.com/solo-io/packer-builder-arm-image
+	go build github.com/solo-io/packer-builder-arm-image
+
+jack2:
+	git clone git://github.com/jackaudio/jack2 --depth 1
+
+supercollider:
+	git clone --recursive git://github.com/supercollider/supercollider
+	cd supercollider && \
+	git checkout 3.9 && \
+	git submodule init && \
+	git submodule update
+	cp SC_TerminalClient.cpp-replacement supercollider/lang/LangSource/SC_TerminalClient.cpp
+
+build:
+	sudo packer build -var wifi_name=SSID -var wifi_password=PASSWORD ./packer.json
