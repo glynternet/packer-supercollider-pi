@@ -57,10 +57,10 @@
     {
       "type": "shell",
       "inline": [
-        "sudo apt-get update",
-        "sudo apt-get -y upgrade",
-        "sudo apt-get -y dist-upgrade",
-        "sudo apt-get install -y libsamplerate0-dev libsndfile1-dev libasound2-dev libavahi-client-dev libreadline6-dev libfftw3-dev libxt-dev libudev-dev libcwiid-dev cmake git"
+        "apt-get update",
+        "apt-get -y upgrade",
+        "apt-get -y dist-upgrade",
+        "apt-get install -y libsamplerate0-dev libsndfile1-dev libasound2-dev libavahi-client-dev libreadline6-dev libfftw3-dev libxt-dev libudev-dev libcwiid-dev cmake git"
       ]
     },
     {
@@ -69,10 +69,10 @@
         "cd /tmp/jack2",
         "./waf configure --alsa --libdir=/usr/lib/arm-linux-gnueabihf/",
         "./waf build",
-        "sudo ./waf install",
-        "sudo ldconfig",
+        "./waf install",
+        "ldconfig",
         "rm -rf jack2",
-        "echo \"@audio - memlock 256000\n@audio - rtprio 75\n\" | sudo tee -a /etc/security/limits.conf",
+        "echo \"@audio - memlock 256000\n@audio - rtprio 75\n\" | tee -a /etc/security/limits.conf",
         "echo \"/usr/local/bin/jackd -P75 -dalsa -dhw:0 -r44100 -p1024 -n3\" > /home/pi/.jackdrc"
       ]
     },
@@ -84,8 +84,8 @@
         "cd build",
         "cmake -L -DCMAKE_BUILD_TYPE=\"Release\" -DBUILD_TESTING=OFF -DSUPERNOVA=OFF -DNATIVE=ON -DSC_WII=ON -DSC_IDE=OFF -DSC_QT=OFF -DSC_ED=OFF -DSC_EL=OFF -DSC_VIM=ON ..",
         "make -j 4",
-        "sudo make install",
-        "sudo ldconfig",
+        "make install",
+        "ldconfig",
         "mkdir -vp /home/pi/.config/SuperCollider"
       ]
     }
