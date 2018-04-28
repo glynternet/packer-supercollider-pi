@@ -2,7 +2,7 @@
   "variables": {
     "wifi_name": "",
     "wifi_password": "",
-    "home": "{{env `HOME`}}"
+    "ssh_public_key": ""
   },
   "builders": [
     {
@@ -33,7 +33,7 @@
     },
     {
       "type": "file",
-      "source": "{{user `home`}}/.ssh/id_rsa.pub",
+      "source": "{{user `ssh_public_key`}}",
       "destination": "/home/pi/.ssh/authorized_keys"
     },
     {
@@ -42,6 +42,25 @@
         "sed '/PasswordAuthentication/d' -i /etc/ssh/ssh_config",
         "echo  >> /etc/ssh/ssh_config",
         "echo 'PasswordAuthentication no' >> /etc/ssh/ssh_config"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "autostart.sh",
+      "destination": "/home/pi/autostart.sh"
+    },
+    {
+      "type": "file",
+      "source": "mycode.scd",
+      "destination": "/home/pi/mycode.scd"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "chown pi:pi /home/pi/autostart.sh /home/pi/mycode.scd",
+        "chmod 700 /home/pi/autostart.sh",
+        "echo \"\" >> /etc/crontab",
+        "echo \"@reboot pi cd /home/pi && ./autostart.sh\" >> /etc/crontab"
       ]
     },
     {
