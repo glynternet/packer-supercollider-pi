@@ -9,6 +9,7 @@
   "builders": [
     {
       "type": "arm-image",
+      "name":"autostart-builder",
       "iso_url": "{{user `iso_url`}}",
       "image_type":"raspberrypi",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
