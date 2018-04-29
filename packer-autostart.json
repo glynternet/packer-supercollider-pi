@@ -1,0 +1,46 @@
+{
+  "variables": {
+    "home_dir": "/home/pi",
+    "iso_url": "{{env `BASE_IMAGE_URL`}}",
+    "iso_checksum_type": "sha256",
+    "iso_checksum": "{{env `BASE_IMAGE_CHECKSUM`}}",
+    "output_directory": "{{env `AUTOSTART_IMAGE_OUTPUT_DIR`}}"
+  },
+  "builders": [
+    {
+      "type": "arm-image",
+      "iso_url": "{{user `iso_url`}}",
+      "image_type":"raspberrypi",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "output_directory": "{{user `output_directory`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "touch /boot/ssh"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "autostart.sh",
+      "destination": "{{user `home_dir`}}/autostart.sh"
+    },
+    {
+      "type": "file",
+      "source": "mycode.scd",
+      "destination": "{{user `home_dir`}}/mycode.scd"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "chown pi:pi {{user `home_dir`}}/autostart.sh {{user `home_dir`}}/mycode.scd",
+        "chmod 700 {{user `home_dir`}}/autostart.sh",
+        "echo \"\" >> /etc/crontab",
+        "echo \"@reboot pi cd {{user `home_dir`}} && ./autostart.sh\" >> /etc/crontab"
+      ]
+    }
+  ]
+}
