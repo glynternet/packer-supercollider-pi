@@ -1,8 +1,17 @@
-SUPERCOLLIDER_IMAGE_OUTPUT_DIR ?= supercollider-pi-image
+SUPERCOLLIDER_IMAGE_OUTPUT_DIR ?= images/supercollider-pi
 SUPERCOLLIDER_IMAGE ?= $(SUPERCOLLIDER_IMAGE_OUTPUT_DIR)/image
 
+all:
+	$(MAKE) dependencies
+	$(MAKE) supercollider-pi
+	$(MAKE) autostart-pi
+
+
 dependencies:
-	sudo apt install kpartx qemu-user-static
+	apt install kpartx qemu-user-static
+	$(MAKE) arm-builder
+	$(MAKE) jack2
+	$(MAKE) supercollider
 
 arm-builder:
 	$(MAKE) arm-builder-download
@@ -28,10 +37,10 @@ supercollider-pi:
 	SUPERCOLLIDER_IMAGE_OUTPUT_DIR=$(SUPERCOLLIDER_IMAGE_OUTPUT_DIR) \
 	packer build ./packer-supercollider-pi.json
 
-AUTOSTART_IMAGE_OUTPUT_DIR ?= autostart-image
+AUTOSTART_IMAGE_OUTPUT_DIR ?= images/autostart-pi
 
-autostart: AUTOSTART_BASEIMAGE_CHECKSUM ?= $(shell sha256sum $(SUPERCOLLIDER_IMAGE) | awk '{ print $$1 }')
-autostart:
+autostart-pi: AUTOSTART_BASEIMAGE_CHECKSUM ?= $(shell sha256sum $(SUPERCOLLIDER_IMAGE) | awk '{ print $$1 }')
+autostart-pi:
 	AUTOSTART_IMAGE_OUTPUT_DIR=$(AUTOSTART_IMAGE_OUTPUT_DIR) \
 	BASE_IMAGE_URL=$(SUPERCOLLIDER_IMAGE) \
 	BASE_IMAGE_CHECKSUM=$(AUTOSTART_BASEIMAGE_CHECKSUM) \
