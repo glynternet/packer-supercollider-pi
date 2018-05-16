@@ -40,7 +40,7 @@
         "chown pi:pi {{user `home_dir`}}/autostart.sh {{user `home_dir`}}/mycode.scd",
         "chmod 700 {{user `home_dir`}}/autostart.sh",
         "echo \"\" >> /etc/crontab",
-        "echo \"@reboot pi cd {{user `home_dir`}} && ./autostart.sh\" >> /etc/crontab"
+        "echo \"@reboot pi cd {{user `home_dir`}} && ./autostart.sh >> ./autostart-out.log 2>>./autostart-error.log\" >> /etc/crontab"
       ]
     }
   ]
